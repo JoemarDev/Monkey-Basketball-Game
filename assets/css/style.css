@@ -1,4 +1,16 @@
 body {
 	padding: 0;
 	margin: 0;
+	overflow: scroll;
+	background: black;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+#game_holder {
+	padding: 10px;
+	width: 100%;
+	text-align: center;
 }
