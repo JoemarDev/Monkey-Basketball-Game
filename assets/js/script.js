@@ -1,8 +1,8 @@
 let screenW = window.innerWidth;
 let screenH = window.innerHeight - 5;
-
+let animationIsPlaying = false;
 let spriteSpeed = 0.8;
-
+let game_rounds = 0;
 let animSpeed = 400;
 window.mobileCheck = function() {
   let check = false;
@@ -10,11 +10,6 @@ window.mobileCheck = function() {
   return check;
 };
 
-// if (window.mobileCheck()) {
-// 	size  = [300,360];
-// } else {
-// 	size = [600,560];
-// }
 
 size = [600,560];
 
@@ -197,6 +192,9 @@ let app = new PIXI.Application({
 
 });
 
+if (document.getElementById('game_holder')) {
+
+
 document.getElementById('game_holder').appendChild(app.view);
 
 app.renderer.resize(size[0],size[1]);
@@ -237,7 +235,6 @@ loader.add("_ring_Right" , "assets/images/basketball/texture/ladder_red.png")
 	  .add("_game_mark" , "assets/images/basketball/texture/mark.png")
 	  .add("_game_result_icon" , "assets/images/basketball/texture/gameresult.png")
 	  .load(init)
-
 
 
 function init() {
@@ -824,13 +821,56 @@ function init() {
 
 		// UPDATING TIME OF THE GAME
 
-		var today = new Date();
+
+		var today = new Date(moment().add(58,'seconds').format());
 		var dd = String(today.getDate()).padStart(2, '0');
 		var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
 		var yyyy = today.getFullYear();
 		let hh = today.getHours();
 		let m = today.getMinutes();
-		let ss = today.getSeconds();
+		let ss = (60 - today.getSeconds());
+		if (ss == 60) {
+			if (!animationIsPlaying) {
+				animationIsPlaying = true;
+				fetch('http://127.0.0.1:8000/api/get-result/limit/10').then((res)=>{
+					return res.json();
+				}).then((data) => {
+					game_rounds = data[0]['round'];
+					graphRound.text = 'Next Round is '+data[0]['round'];
+					_play_animation([data[0]['result_type_one'] , data[0]['result_type_two']]);
+
+					setTimeout(function(){
+						appendResult(data[0],'animate__animated  animate__slideInLeft');
+					},5000)
+
+				})
+			}
+			
+		}
+
+		if (ss < 45) {
+			if (game_rounds.toString().slice(-2) == '10') {
+				_ready_character_sprite.alpha = 0;
+				_game_signal_green_sprite.alpha = 1;
+
+			} 
+
+
+			if (game_rounds.toString().slice(-2) == '50') {
+				_ready_character_sprite.alpha = 0;
+				_game_signal_green_sprite.alpha = 1;
+				_game_signal_02_sprite.alpha = 1;
+			}
+
+			if (game_rounds.toString().slice(-2) == '00') {
+				_ready_character_sprite.alpha = 0;
+				_game_signal_green_sprite.alpha = 1;
+				_game_signal_02_sprite.alpha = 1;
+				_game_signal_01_sprite_right.alpha = 1;
+				_game_signal_01_sprite_left.alpha = 1;
+
+			}
+		}
 
 		if (m < 10) {
 			m = '0'+m;
@@ -840,199 +880,61 @@ function init() {
 			ss = '0'+ss;
 		}
 
+
 		secondIndicationStr.text = ss+' 초 후';
-		timeIndicationStr.text = mm+'월 '+dd+'일 732회차 추첨을 시작합니다.';
+		timeIndicationStr.text = mm+'월 '+dd+'일 ' +game_rounds+ ' 회차 추첨을 시작합니다.';
 		today = yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + m + ':' + ss + ' GMT+08:00';
 		UTCTIME.text = today;
 	})
 
 
-	document.getElementById('changeLines').addEventListener('click',function(){
-		if (active == 'threeLines') {
-			active = 'fourLines';
-			make4Lines();
-		} else {
-			active = 'threeLines';
-			make3Lines()
+	fetch('http://127.0.0.1:8000/api/get-result/limit/10').then((res)=>{
+		return res.json();
+	}).then((data) => {
+		game_rounds = data[0]['round'];
+		graphRound.text = data[0]['round']+'회' + ' 배팅현황';
+
+		for (var i = data.length - 1; i >= 0; i--) {
+			appendResult(data[i],'');
 		}
+		
 	})
 
+	function appendResult(DataResult,anim) {
 
-	document.getElementById('play4lines').addEventListener('click',function(){
-		setBallStartLeft();
-		make4Lines();
-		leftLines(fourLines[0]['line'] + 12,50,4);
+		let today = new Date(DataResult['created_at'])
+		let month = today.getMonth() + 1;
+		let day = String(today.getDate()).padStart(2, '0');
 
-	})
+		let card = document.createElement('div');
 
+		let imgAddr = '';
 
-	document.getElementById('play4Rlines').addEventListener('click',function(){
-		setBallStartRight();
-		make4Lines();
-		rightLines(fourLines[0]['line'] + 12,50,4);
-	})
-
-	document.getElementById('play3Lines').addEventListener('click',function(){
-		setBallStartLeft();
-		make3Lines();
-		leftLines(threeLines[0]['line'] + 13.5,67,3);
-	})
-
-
-	document.getElementById('play3RLines').addEventListener('click',function(){
-		setBallStartRight();
-		make3Lines();
-		rightLines(threeLines[0]['line'] + 13.5,67,3);
-	});
-
-
-	document.getElementById('reset').addEventListener('click',function(){
-		resetGame();
-	})
-
-	document.getElementById('playANIM').addEventListener('click',function(){
-		// Remove the ready character sprite
-		_ready_character_sprite.alpha = 0;
-		// REmove the time indicator
-		time_container.alpha = 0;
-
-		// Show the Character Playing
-		_play_character_sprite.gotoAndStop(0);
-		_play_character_sprite.alpha = 1;
-		_play_character_sprite.loop = false;
-		_play_character_sprite.play();
-
-		_play_character_sprite.onComplete = () => {
-			setTimeout(function(){
-				_play_character_sprite.alpha = 0;
-			},200);
-			let win = [];
-			let rand = Math.floor(Math.random() * 4);
-
-			if (rand == 0) {
-				win = ['left','Odd'];  // 3 Lines
-			} else if (rand == 1) {
-				win = ['left','Even']; // 4 Lines
-			} else if (rand == 2) {
-				win = ['right','Odd'];  // 3 Lines
-			} else if (rand == 4) {
-				win = ['right','Even']; //  4 Lines
-			}
-
-			if (win[0] == 'left') {
-
-
-				_game_result_icon_1.gotoAndStop(1);
-				_game_result_icon_1_name.text = 'Left';
-				_game_result_icon_3.gotoAndStop(1);
-
-				_ring_Left_sprite.gotoAndStop(0);
-				_ring_Left_sprite.play();
-
-				_ring_Left_sprite.onComplete = () => {
-					setBallStartLeft();
-					if (win[1] == 'Odd') {
-						make4Lines();
-						leftLines(fourLines[0]['line'] + 12,50,4);
-
-						_game_result_line_text.text = '4 LINES';
-						_game_result_line_text_total.text = '4 LINES';
-
-
-
-						_game_result_icon_2.gotoAndStop(2);
-						_game_result_icon_2_name.text = 'ODD';
-
-					} else {
-
-						make3Lines();
-						leftLines(threeLines[0]['line'] + 13.5,67,3);
-						
-
-						_game_result_line_text.text = '3 LINES';
-						_game_result_line_text_total.text = '3 LINES';
-
-
-
-						_game_result_icon_2.gotoAndStop(0);
-						_game_result_icon_2_name.text = 'EVEN';
-
-
-					}
-
-					ladder_container.alpha = 1;
-					_game_shoot_effect_sprite_left.alpha = 1;
-					_game_shoot_effect_sprite_left.gotoAndStop(0);
-					_game_shoot_effect_sprite_left.loop = false;
-					_game_shoot_effect_sprite_left.play();
-					_game_shoot_effect_sprite_left.onComplete = () => {
-						_game_shoot_effect_sprite_left.alpha = 0;
-					}
-				}
-			} else {
-
-				_game_result_icon_1.gotoAndStop(3);
-				_game_result_icon_1_name.text = 'Right';
-				_game_result_icon_3.gotoAndStop(3);
-
-				_ring_Right_sprite.gotoAndStop(0);
-				_ring_Right_sprite.play();
-
-				_ring_Right_sprite.onComplete = () => {
-					setBallStartRight();
-
-					if (win[1] == 'Odd') {
-
-						make3Lines();
-						rightLines(threeLines[0]['line'] + 13.5,67,3);
-
-
-						_game_result_line_text.text = '3 LINES';
-						_game_result_line_text_total.text = '3 LINES';
-						_game_result_icon_2.gotoAndStop(2);
-
-
-
-						_game_result_icon_2_name.text = 'ODD';
-						_game_result_icon_3.gotoAndStop(2);
-
-
-					} else {
-
-						make4Lines();
-						rightLines(fourLines[0]['line'] + 12,50,4);
-						
-
-						_game_result_line_text.text = '4 LINES';
-						_game_result_line_text_total.text = '4 LINES';
-						_game_result_icon_2.gotoAndStop(0);
-
-						_game_result_icon_2_name.text = 'EVEN';
-						_game_result_icon_3.gotoAndStop(0);
-
-					}
-
-				
-					ladder_container.alpha = 1;
-					_game_shoot_effect_sprite_right.alpha = 1;
-					_game_shoot_effect_sprite_right.gotoAndStop(0);
-					_game_shoot_effect_sprite_right.loop = false;
-					_game_shoot_effect_sprite_right.play();
-					_game_shoot_effect_sprite_right.onComplete = () => {
-						_game_shoot_effect_sprite_right.alpha = 0;
-						
-					}
-				}
-			}
-
-			setTimeout(function(){
-				// resetGame();
-			},10000);
-			
+		if (DataResult['result_type_two'] == 'Even' && DataResult['result_type_three'] == '3Lines') {
+			imgAddr = 'assets/images/game/result_1_1.png';
+		} else if (DataResult['result_type_two'] == 'Even' && DataResult['result_type_three'] == '4Lines') {
+			imgAddr = 'assets/images/game/result_2_2.png';
+		} else if(DataResult['result_type_two'] == 'Odd' && DataResult['result_type_three'] == '3Lines') {
+			imgAddr = 'assets/images/game/result_2_1.png';
+		} else if (DataResult['result_type_two'] == 'Odd' && DataResult['result_type_three'] == '4Lines') {
+			imgAddr = 'assets/images/game/result_1_2.png';
 		}
 
+		card.innerHTML = '<div class="card-result '+anim+'">'+
+					'<label>'+month+'월'+day+'일 '+DataResult['round']+' 회차</label>'+
+					'<img src="'+imgAddr+'">'+
+					'<div class="bettingstatus">'+
+						'<span class="bettingstatus1" style="width:50%;">'+
+							'<img src="assets/images/game/space.gif">'+
+						'</span>'+
+						'<span class="bettingstatus2" style="width:50%;">'+
+							'<img src="assets/images/game/bettingstatus.png">'+
+						'</span>'+
+					'</div>'+
+				'</div>';
 
-	});
+		document.getElementsByClassName('result-container')[0].prepend(card);
+	}
 
 
 	function leftLines(HLine,lineDecr,type) {
@@ -1091,7 +993,7 @@ function init() {
 										.to({alpha : 0 },300)
 										.call(function(){
 											createjs.Tween.get(result_container,{loop : false})
-											.to({alpha : 0.5} , 500);
+											.to({alpha : 1} , 500);
 										})
 									})
 									// Function of moving ball
@@ -1122,7 +1024,7 @@ function init() {
 												.to({alpha : 0 },300)
 												.call(function(){
 													createjs.Tween.get(result_container,{loop : false})
-													.to({alpha : 0.8} , 500);
+													.to({alpha :1} , 500);
 												})
 											})
 											// Function of moving ball
@@ -1198,7 +1100,7 @@ function init() {
 										.to({alpha : 0 },300)
 										.call(function(){
 											createjs.Tween.get(result_container,{loop : false})
-											.to({alpha : 0.5} , 500);
+											.to({alpha : 1} , 500);
 										})
 									})
 									// Function of moving ball
@@ -1230,7 +1132,7 @@ function init() {
 												.to({alpha : 0 },300)
 												.call(function(){
 													createjs.Tween.get(result_container,{loop : false})
-													.to({alpha : 0.8} , 500);
+													.to({alpha :1} , 500);
 												})
 											})
 											// Function of moving ball
@@ -1267,7 +1169,8 @@ function init() {
 	}
 
 	function resetGame() {
-
+		graph_container.alpha = 1;
+		animationIsPlaying = false;
 		resetLine();
 
 		_ready_character_sprite.alpha = 1;
@@ -1285,11 +1188,6 @@ function init() {
 		_game_ball.alpha = 1;
 		result_container.alpha = 0;
 	}
-	
-
-	
-
-	
 
 
 	function resetLine(){
@@ -1329,14 +1227,11 @@ function init() {
 	}
 
 
-
 	function setBallStartRight(){
 		_game_mark_right.gotoAndStop(6)
 		_game_ball.x = _game_mark_right.x;
 		_game_ball.y = _game_mark_right.y;
 	}
-
-
 	
 	function make4Lines() {
 		resetLine();
@@ -1419,6 +1314,161 @@ function init() {
 		active_vertical_4.y = ladder_h_4.y;
 		active_vertical_4.alpha = ladder_h_4.alpha;
 	}
+
+	function _play_animation(result){
+		graph_container.alpha = 0;
+		// Remove the ready character sprite
+		_ready_character_sprite.alpha = 0;
+		_game_signal_green_sprite.alpha = 0;
+		_game_signal_02_sprite.alpha = 0;
+		_game_signal_01_sprite_right.alpha = 0;
+		_game_signal_01_sprite_left.alpha = 0;
+
+		// REmove the time indicator
+		time_container.alpha = 0;
+
+		// Show the Character Playing
+		_play_character_sprite.gotoAndStop(0);
+		_play_character_sprite.alpha = 1;
+		_play_character_sprite.loop = false;
+		_play_character_sprite.play();
+
+		_play_character_sprite.onComplete = () => {
+			setTimeout(function(){
+				_play_character_sprite.alpha = 0;
+			},200);
+			let win = [];
+			let rand = Math.floor(Math.random() * 4);
+
+			if (result.length > 0) {
+				win = [result[0],result[1]];
+			} else {
+
+				if (rand == 0) {
+					win = ['left','Odd'];  // 4 Lines
+				} else if (rand == 1) {
+					win = ['left','Even']; // 3 Lines
+				} else if (rand == 2) {
+					win = ['right','Odd'];  // 3 Lines
+				} else if (rand == 4) {
+					win = ['right','Even']; //  4 Lines
+				}
+			}
+
+			if (win[0] == 'left') {
+
+				_game_result_icon_1.gotoAndStop(1);
+				_game_result_icon_1_name.text = 'Left';
+				_game_result_icon_3.gotoAndStop(1);
+
+				_ring_Left_sprite.gotoAndStop(0);
+				_ring_Left_sprite.play();
+
+				_ring_Left_sprite.onComplete = () => {
+					setBallStartLeft();
+					if (win[1] == 'Odd') {
+						make4Lines();
+						leftLines(fourLines[0]['line'] + 12,50,4);
+
+						_game_result_line_text.text = '4 LINES';
+						_game_result_line_text_total.text = '4 LINES';
+
+
+
+						_game_result_icon_2.gotoAndStop(2);
+						_game_result_icon_2_name.text = 'ODD';
+
+					} else {
+
+						make3Lines();
+						leftLines(threeLines[0]['line'] + 13.5,67,3);
+						
+
+						_game_result_line_text.text = '3 LINES';
+						_game_result_line_text_total.text = '3 LINES';
+
+
+
+						_game_result_icon_2.gotoAndStop(0);
+						_game_result_icon_2_name.text = 'EVEN';
+
+
+					}
+
+					ladder_container.alpha = 1;
+					_game_shoot_effect_sprite_left.alpha = 1;
+					_game_shoot_effect_sprite_left.gotoAndStop(0);
+					_game_shoot_effect_sprite_left.loop = false;
+					_game_shoot_effect_sprite_left.play();
+					_game_shoot_effect_sprite_left.onComplete = () => {
+						_game_shoot_effect_sprite_left.alpha = 0;
+
+					}
+				}
+			} else {
+
+				_game_result_icon_1.gotoAndStop(3);
+				_game_result_icon_1_name.text = 'Right';
+				_game_result_icon_3.gotoAndStop(3);
+
+				_ring_Right_sprite.gotoAndStop(0);
+				_ring_Right_sprite.play();
+
+				_ring_Right_sprite.onComplete = () => {
+					setBallStartRight();
+
+					if (win[1] == 'Odd') {
+
+						make3Lines();
+						rightLines(threeLines[0]['line'] + 13.5,67,3);
+
+
+						_game_result_line_text.text = '3 LINES';
+						_game_result_line_text_total.text = '3 LINES';
+						_game_result_icon_2.gotoAndStop(2);
+
+
+
+						_game_result_icon_2_name.text = 'ODD';
+						_game_result_icon_3.gotoAndStop(2);
+
+
+					} else {
+
+						make4Lines();
+						rightLines(fourLines[0]['line'] + 12,50,4);
+						
+
+						_game_result_line_text.text = '4 LINES';
+						_game_result_line_text_total.text = '4 LINES';
+						_game_result_icon_2.gotoAndStop(0);
+
+						_game_result_icon_2_name.text = 'EVEN';
+						_game_result_icon_3.gotoAndStop(0);
+
+					}
+
+				
+					ladder_container.alpha = 1;
+					_game_shoot_effect_sprite_right.alpha = 1;
+					_game_shoot_effect_sprite_right.gotoAndStop(0);
+					_game_shoot_effect_sprite_right.loop = false;
+					_game_shoot_effect_sprite_right.play();
+					_game_shoot_effect_sprite_right.onComplete = () => {
+						_game_shoot_effect_sprite_right.alpha = 0;
+						
+					}
+				}
+			}
+
+			setTimeout(function(){
+				resetGame();
+			},10000);
+			
+		}
+
+
+	}
 }
 
 
@@ -1445,4 +1495,12 @@ function resize() {
 	    app.renderer.view.style.height = h + 'px';
      }
 }
+
+
+
+
+}
+
+// xhttp.open('GET','http://127.0.0.1:8000/sayHello',true);
+// xhttp.send();
 
