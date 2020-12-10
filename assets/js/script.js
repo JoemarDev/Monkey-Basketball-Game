@@ -833,18 +833,20 @@ function init() {
 		if (ss == 60) {
 			if (!animationIsPlaying) {
 				animationIsPlaying = true;
-				fetch(apiRecord+'/api/get-result/limit/10').then((res)=>{
-					return res.json();
-				}).then((data) => {
-					game_rounds = data[0]['round'];
-					graphRound.text = 'Next Round is '+data[0]['round'];
-					_play_animation([data[0]['result_type_one'] , data[0]['result_type_two']]);
+				setTimeout(function(){\
+					fetch(apiRecord+'/api/get-result/limit/1').then((res)=>{
+						return res.json();
+					}).then((data) => {
+						game_rounds = data[0]['round'];
+						graphRound.text = 'Next Round is '+data[0]['round'];
+						_play_animation([data[0]['result_type_one'] , data[0]['result_type_two']]);
 
-					setTimeout(function(){
-						appendResult(data[0],'animate__animated  animate__slideInLeft');
-					},5000)
+						setTimeout(function(){
+							appendResult(data[0],'animate__animated  animate__slideInLeft');
+						},5000)
 
-				})
+					})
+				},500)
 			}
 			
 		}
