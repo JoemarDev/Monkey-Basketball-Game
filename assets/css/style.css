@@ -29,7 +29,7 @@ button
 
 
 .result-holder {
-	width: 210px;
+	min-width: 210px;
 	height: 556px;
 	border:2px solid #00b9c6;
 	background-color: #191919;

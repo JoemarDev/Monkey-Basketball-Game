@@ -1480,20 +1480,20 @@ resize()
 
 
 function resize() {
-    if (window.innerWidth / window.innerHeight >= ratio) {
-        var w = window.innerHeight * ratio;
-        var h = window.innerHeight;
-    } else {
-        var w = window.innerWidth;
-        var h = window.innerWidth / ratio;
-    }
+    // if (window.innerWidth / window.innerHeight >= ratio) {
+    //     var w = window.innerHeight * ratio;
+    //     var h = window.innerHeight;
+    // } else {
+    //     var w = window.innerWidth;
+    //     var h = window.innerWidth / ratio;
+    // }
 
-     // app.renderer.resize(screenW,screenH);
+    //  // app.renderer.resize(screenW,screenH);
 
-     if (window.innerWidth < size[0]) {
-	    app.renderer.view.style.width = w + 'px';
-	    app.renderer.view.style.height = h + 'px';
-     }
+    //  if (window.innerWidth < size[0]) {
+	   //  app.renderer.view.style.width = w + 'px';
+	   //  app.renderer.view.style.height = h + 'px';
+    //  }
 }
 
 
