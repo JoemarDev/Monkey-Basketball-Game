@@ -1,4 +1,4 @@
-let apiRecord = 'http://127.0.0.1:8000';
+let apiRecord = 'https://mt-police888.com';
 let screenW = window.innerWidth;
 let screenH = window.innerHeight - 5;
 let animationIsPlaying = false;
