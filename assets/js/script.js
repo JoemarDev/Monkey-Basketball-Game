@@ -1,3 +1,4 @@
+let apiRecord = 'https://mt-police888.com';
 let screenW = window.innerWidth;
 let screenH = window.innerHeight - 5;
 let animationIsPlaying = false;
@@ -832,7 +833,7 @@ function init() {
 		if (ss == 60) {
 			if (!animationIsPlaying) {
 				animationIsPlaying = true;
-				fetch('https://mt-police888.com/api/get-result/limit/10').then((res)=>{
+				fetch(apiRecord+'/api/get-result/limit/10').then((res)=>{
 					return res.json();
 				}).then((data) => {
 					game_rounds = data[0]['round'];
@@ -888,7 +889,7 @@ function init() {
 	})
 
 
-	fetch('https://mt-police888.com/api/get-result/limit/10').then((res)=>{
+	fetch(apiRecord+'/api/get-result/limit/10').then((res)=>{
 		return res.json();
 	}).then((data) => {
 		game_rounds = data[0]['round'];
