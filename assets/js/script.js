@@ -2,7 +2,7 @@ let apiRecord = 'https://mt-police888.com';
 let screenW = window.innerWidth;
 let screenH = window.innerHeight - 5;
 let animationIsPlaying = false;
-let spriteSpeed = 0.8;
+let spriteSpeed = 0.6;
 let game_rounds = 0;
 let animSpeed = 400;
 window.mobileCheck = function() {
@@ -275,7 +275,7 @@ function init() {
 	_game_result.y = background.y - 180;
 
 
-	let resultRound = new PIXI.Text('Game Round 798',{fontFamily : 'Arial', fontSize: 14, fill : 0xffffff, align : 'center'});
+	let resultRound = new PIXI.Text('',{fontFamily : 'Arial', fontSize: 14, fill : 0xffffff, align : 'center'});
 	resultRound.x = _game_result.x + 170;
 	resultRound.y = _game_result.y + 32;
 
@@ -379,7 +379,7 @@ function init() {
 	bluePercent.x = _game_graph.x + 20;
 	bluePercent.y = _game_graph.y + 35;
 
-	let graphRound = new PIXI.Text('Next Round Is 75',{fontFamily : 'Arial', fontSize: 14, fill : 0xffffff, align : 'center'});
+	let graphRound = new PIXI.Text('',{fontFamily : 'Arial', fontSize: 14, fill : 0xffffff, align : 'center'});
 	graphRound.width = 110;
 	graphRound.x = _game_graph.x + 22;
 	graphRound.y = _game_graph.y + 6;
@@ -837,18 +837,20 @@ function init() {
 					fetch(apiRecord+'/api/get-result/limit/1').then((res)=>{
 						return res.json();
 					}).then((data) => {
-						game_rounds = data[0]['round'];
-						graphRound.text = 'Next Round is '+data[0]['round'];
+						let nextRound = parseInt(data[0]['round']) + 1;
+						game_rounds = nextRound;
+						graphRound.text = nextRound+'회' + ' 배팅현황';
+						resultRound.text =  data[0]['round'] + ' 회차 결과';
 						_play_animation([data[0]['result_type_one'] , data[0]['result_type_two']]);
 
 						setTimeout(function(){
 							appendResult(data[0],'animate__animated  animate__slideInLeft');
+							document.getElementById("card-result").lastChild.remove();
 						},5000)
 
 					})
 				},2000)
-			}
-			
+			}		
 		}
 
 		if (ss < 45) {
@@ -886,20 +888,22 @@ function init() {
 
 		secondIndicationStr.text = ss+' 초 후';
 		timeIndicationStr.text = mm+'월 '+dd+'일 ' +game_rounds+ ' 회차 추첨을 시작합니다.';
-		today = yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + m + ':' + ss + ' GMT+08:00';
+		today = yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + m + ':' + ss + ' GMT+09:00';
 		UTCTIME.text = today;
 	})
 
 
-	fetch(apiRecord+'/api/get-result/limit/10').then((res)=>{
+	fetch(apiRecord+'/api/get-result/limit/20').then((res)=>{
 		return res.json();
 	}).then((data) => {
-		game_rounds = data[0]['round'];
-		graphRound.text = data[0]['round']+'회' + ' 배팅현황';
-
+		let nextRound = parseInt(data[0]['round']) + 1;
+		game_rounds = nextRound;
+		graphRound.text = nextRound+'회' + ' 배팅현황';
+		resultRound.text =  data[0]['round'] + ' 회차 결과';
 		for (var i = data.length - 1; i >= 0; i--) {
 			appendResult(data[i],'');
 		}
+
 		
 	})
 
@@ -937,6 +941,9 @@ function init() {
 				'</div>';
 
 		document.getElementsByClassName('result-container')[0].prepend(card);
+
+
+
 	}
 
 
