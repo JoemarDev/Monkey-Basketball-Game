@@ -186,10 +186,10 @@ fetch('assets/json/mark.json').then((res)=>{
 
 
 let app = new PIXI.Application({
-	width : screenW ,
-	height : screenH,
+	width : size[0] ,
+	height : size[1],
 	backgroundColor : 0x00000,
-	resolution : window.devicePixelRatio || 1,
+	// resolution : window.devicePixelRatio || 1,
 
 });
 
@@ -1476,10 +1476,10 @@ function init() {
 
 
 window.onresize = function() {
-	resize()
+	// resize()
 }
 
-resize()
+// resize()
 
 
 function resize() {
