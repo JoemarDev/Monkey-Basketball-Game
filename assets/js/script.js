@@ -833,7 +833,7 @@ function init() {
 		if (ss == 60) {
 			if (!animationIsPlaying) {
 				animationIsPlaying = true;
-				setTimeout(function(){\
+				setTimeout(function(){
 					fetch(apiRecord+'/api/get-result/limit/1').then((res)=>{
 						return res.json();
 					}).then((data) => {
@@ -846,7 +846,7 @@ function init() {
 						},5000)
 
 					})
-				},900)
+				},2000)
 			}
 			
 		}
