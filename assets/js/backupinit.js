@@ -1,323 +1,8 @@
-let loadedText = new PIXI.Text('0%',{fontFamily : 'Arial', fontSize: 14, fill : 0xffffff, align : 'center'});
-let loadingAnim = new PIXI.BaseTexture.from('assets/images/loading/skycity_loading.png');
-let screenW = window.innerWidth;
-let screenH = window.innerHeight - 5;
-let animationIsPlaying = false;
-let before5SecondsSound = false;
-let spriteSpeed = 0.6;
-let game_rounds = 0;
-let animSpeed = 400;
-let animGameState = false;
-let lastRound = 0;
-window.mobileCheck = function() {
-  let check = false;
-  (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
-  return check;
-};
-
-
-size = [600,560];
-
-var ratio = size[0] / size[1];
-
-
-// Alliases
-let Application = PIXI.Application,
-	loader = PIXI.loader,
-	resources = PIXI.loader.resources,
-	Sprite = PIXI.Spritel
-
-
-let apiRecord = 'https://adminbet365.com';
-// let apiRecord = 'http://127.0.0.1:8000';/
-let gameSheet = [];
-let gamePivot = []
-
-// fetch ALL SPRITE JSON
-fetch('assets/json/skycity_loading.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_loadingAnim'] = arr;		    
-}).then(() =>{
-
-	gameSheet['_game_login_anim'] = [];
-
-	for(let x = 0; x < gamePivot.pivot_loadingAnim.length; x++) {
-		let frame = gamePivot.pivot_loadingAnim[x][0];
-		let size = gamePivot.pivot_loadingAnim[x][1];
-		data = new PIXI.Texture(loadingAnim , new PIXI.Rectangle(frame['x'],frame['y'],size['w'],size['h']));
-		gameSheet['_game_login_anim'].push(data);	
-	}
-
-
-	_game_login_anim_sprite = new PIXI.AnimatedSprite(gameSheet['_game_login_anim']);
-
-	_game_login_anim_sprite.x = app.screen.width / 2.7;
-	_game_login_anim_sprite.y = app.screen.height / 2.6;
-	_game_login_anim_sprite.play();
-
-	loadedText.x = _game_login_anim_sprite.x + 50;
-	loadedText.y = _game_login_anim_sprite.y + 140;
-
-	app.stage.addChild(_game_login_anim_sprite,loadedText);
-
-})
-
-
-fetch('assets/json/ready.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_ready_character'] = arr;		    
-})
-
-fetch('assets/json/btnsounds.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_btnsounds'] = arr;		    
-})
-
-
-fetch('assets/json/right_ring.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_right_ring'] = arr;		    
-})
-
-
-
-fetch('assets/json/ring_left.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_left_ring'] = arr;		    
-})
-
-
-
-
-fetch('assets/json/character.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_character'] = arr;		    
-})
-
-
-
-fetch('assets/json/signal_green.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_green_signal'] = arr;		    
-})
-
-
-fetch('assets/json/effect.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_shoot_effect'] = arr;		    
-})
-
-
-fetch('assets/json/signal02.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_signal_02'] = arr;		    
-});
-
-fetch('assets/json/gameresult.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_game_result'] = arr;		    
-});
-
-
-
-
-
-
-
-fetch('assets/json/signal01.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_signal_01'] = arr;		    
-})
-
-
-fetch('assets/json/mark.json').then((res)=>{
-	return res.json();
-}).then((data) => {
-
-	let res = data;
-	let arr = [];
-	 for(let i = 0; i < res.length; i++) {
-	 	let frame = res[i]['frame'];
-	 	let size = res[i]['spriteSourceSize'];
-	 	arr.push([frame,size])
-	 }
-	 gamePivot['pivot_mark'] = arr;		    
-})
-
-
-
-
-let app = new PIXI.Application({
-	width : size[0] ,
-	height : size[1],
-	backgroundColor : 0x00000,
-
-	// resolution : window.devicePixelRatio || 1,
-
-});
-
-if (document.getElementById('game_holder')) {
-
-
-document.getElementById('game_holder').appendChild(app.view);
-
-
-app.renderer.resize(size[0],size[1]);
-
-
-
-
-
-
-app.maxFPS = 59;
-
-createjs.Ticker.framerate = 60;
-
-
-
-loader.add("_background" , "assets/images/basketball/images/background.png")
-	  .add("_ring_Right" , "assets/images/basketball/texture/ladder_red.png")
-	  .add("_ring_Left" , "assets/images/basketball/texture/ladder_blue.png")
-	  .add("_ready_character" , "assets/images/basketball/texture/ready.png")
-	  .add("_play_character" , "assets/images/basketball/texture/character.png")
-	  .add("_game_title" , "assets/images/basketball/images/title_basket.png")
-	  .add("_game_signal_green" , "assets/images/basketball/texture/signal03.png")
-	  .add("_game_shoot_effect" , "assets/images/basketball/texture/effect.png")
-	  .add("_game_signal_02" , "assets/images/basketball/texture/signal02.png")
-	  .add("_game_signal_01" , "assets/images/basketball/texture/signal01.png")
-	  .add("ladder_horizon" , "assets/images/ladder/ladder_horizon.png")
-	  .add("img_horizon" , "assets/images/ladder/img_horizon.png")
-	  .add("ladder_vertical" , "assets/images/ladder/ladder_vertical.png")
-	  .add("img_vertical" , "assets/images/ladder/img_vertical.png")
-	  .add("_game_mark" , "assets/images/basketball/texture/mark.png")
-	  .add("_game_result_icon" , "assets/images/basketball/texture/gameresult.png")
-	  .add('bgMusic', 'assets/sounds/sadaribgm.mp3')
-	  .add('b5seconds', 'assets/sounds/basket_5s.mp3')
-	  .add('basketDribble', 'assets/sounds/basket-dribble.mp3')
-	  .add('basketStartend', 'assets/sounds/basket-startend.mp3')
-	  .add('commonLadder', 'assets/sounds/common-ladder.mp3')
-	  .add('commonResult', 'assets/sounds/common-result.mp3')
-	  .add('_game_btnSounds', 'assets/images/texture/btnsounds.png')
-	  .load(init)
-
-
-loader.onProgress.add((e) => {
-	if (loadedText) {
-
-		loadedText.text = Math.ceil(e.progress) + '%';
-	}
-})
-
-
-
 function init() {
 
-	// Background Spr
-	let _background = PIXI.Sprite.from(loader.resources['_background'].url);
-	_background.anchor.set(0.5);
-	_background.alpha = 1;
-	// move the backgroun sprite to the center of the screen
-	_background.x = app.screen.width / 2;
-	_background.y = app.screen.height / 2;
+	
 
-
-	app.stage.addChild(_background);
-	// Background Sprites
-	_background.alpha = 1;
+	background.alpha = 1;
 	_game_login_anim_sprite.alpha = 0;
 	
 	loadedText.alpha = 0;
@@ -356,8 +41,8 @@ function init() {
 
 
 	let gameTitle = PIXI.Sprite.from(loader.resources['_game_title'].url);
-	gameTitle.x = _background.x - 170;
-	gameTitle.y = _background.y - 275;
+	gameTitle.x = background.x - 170;
+	gameTitle.y = background.y - 275;
 
 	var d = new Date();
 	var gtmStr = d.toUTCString();
@@ -369,8 +54,8 @@ function init() {
 	let result_container = new PIXI.Container();
 
 	let _game_result = PIXI.Sprite.from('assets/images/bet/basketball_result.png');
-	_game_result.x = _background.x - 220;
-	_game_result.y = _background.y - 180;
+	_game_result.x = background.x - 220;
+	_game_result.y = background.y - 180;
 
 
 	let resultRound = new PIXI.Text('',{fontFamily : 'Arial', fontSize: 14, fill : 0xffffff, align : 'center'});
@@ -435,7 +120,7 @@ function init() {
 	title_2.y = title_1.y + 59;
 	title_3.y = title_2.y + 59;
 	title_4.y = title_3.y + 59;
-	title_1.x = title_2.x = title_3.x = title_4.x = _background.x - 20;
+	title_1.x = title_2.x = title_3.x = title_4.x = background.x - 20;
 
 
 	result_container.addChild(_game_result,resultRound,_game_result_icon_1,_game_result_icon_2,_game_result_icon_3,title_1,title_2,title_3,title_4,_game_result_line_text , _game_result_line_text_total,_game_result_icon_1_name,_game_result_icon_2_name);
@@ -448,8 +133,8 @@ function init() {
 	let _game_graph_red_1 = PIXI.Sprite.from('assets/images/bet/graph_red02.png');
 
 
-	_game_graph.x = _background.x - 75;
-	_game_graph.y = _background.y + 170;
+	_game_graph.x = background.x - 75;
+	_game_graph.y = background.y + 170;
 
 
 	_game_graph_blue_1.width = 50;
@@ -488,15 +173,15 @@ function init() {
 
 	let ladder_left  = PIXI.Sprite.from(loader.resources['ladder_vertical'].url);
 
-	ladder_left.x = _background.x / 2.20;
-	ladder_left.y = _background.y / 2.05;
-	ladder_left.height = _background.height - 320;
+	ladder_left.x = background.x / 2.20;
+	ladder_left.y = background.y / 2.05;
+	ladder_left.height = background.height - 320;
 
 	let ladder_right = PIXI.Sprite.from(loader.resources['ladder_vertical'].url);
 
-	ladder_right.x =  _background.width / 1.375;
+	ladder_right.x =  background.width / 1.375;
 	ladder_right.y =  ladder_left.y;
-	ladder_right.height = _background.height - 320;
+	ladder_right.height = background.height - 320;
 
 
 	let threeLines = [
@@ -519,23 +204,23 @@ function init() {
 
 	let ladder_h_1 = PIXI.Sprite.from(loader.resources['ladder_horizon'].url);
 
-	ladder_h_1.x = _background.x - 152;
+	ladder_h_1.x = background.x - 152;
 	ladder_h_1.y = fourLines[0]['Lpos'] + fourLines[0]['line'];
 	ladder_h_1.alpha = fourLines[0]['alpha'];
 
 	let ladder_h_2 = PIXI.Sprite.from(loader.resources['ladder_horizon'].url);
 
-	ladder_h_2.x = _background.x - 152;
+	ladder_h_2.x = background.x - 152;
 	ladder_h_2.y = fourLines[1]['Lpos'] + fourLines[1]['line'];
 	ladder_h_2.alpha = fourLines[1]['alpha'];
 	let ladder_h_3 = PIXI.Sprite.from(loader.resources['ladder_horizon'].url);
 
-	ladder_h_3.x = _background.x - 152;
+	ladder_h_3.x = background.x - 152;
 	ladder_h_3.y = fourLines[2]['Lpos'] + fourLines[2]['line'];
 	ladder_h_3.alpha = fourLines[2]['alpha'];
 	let  ladder_h_4 = PIXI.Sprite.from(loader.resources['ladder_horizon'].url);
 
-	ladder_h_4.x = _background.x - 152;
+	ladder_h_4.x = background.x - 152;
 	ladder_h_4.y = fourLines[3]['Lpos'] + fourLines[3]['line'];
 	ladder_h_4.alpha = fourLines[3]['alpha'];
 
@@ -643,16 +328,16 @@ function init() {
 
 
 	_game_mark_left = new PIXI.AnimatedSprite(gameSheet['_game_mark']);
-	_game_mark_left.x = _background.x - 190;
-	_game_mark_left.y = _background.y  - 190;
+	_game_mark_left.x = background.x - 190;
+	_game_mark_left.y = background.y  - 190;
 	_game_mark_left.animationSpeed = spriteSpeed;
 	_game_mark_left.alpha = 1;
 	_game_mark_left.gotoAndStop(1);
 
 
 	_game_mark_right = new PIXI.AnimatedSprite(gameSheet['_game_mark']);
-	_game_mark_right.x = _background.x + 125;
-	_game_mark_right.y = _background.y  - 190;
+	_game_mark_right.x = background.x + 125;
+	_game_mark_right.y = background.y  - 190;
 	_game_mark_right.animationSpeed = spriteSpeed;
 	_game_mark_right.alpha = 1;
 	_game_mark_right.gotoAndStop(7);
@@ -660,8 +345,8 @@ function init() {
 
 
 	_game_mark_odd = new PIXI.AnimatedSprite(gameSheet['_game_mark']);
-	_game_mark_odd.x = _background.x - 190;
-	_game_mark_odd.y = _background.y  + 80;
+	_game_mark_odd.x = background.x - 190;
+	_game_mark_odd.y = background.y  + 80;
 	_game_mark_odd.animationSpeed = spriteSpeed;
 	_game_mark_odd.alpha = 1;
 	_game_mark_odd.gotoAndStop(2);
@@ -669,8 +354,8 @@ function init() {
 
 
 	_game_mark_even = new PIXI.AnimatedSprite(gameSheet['_game_mark']);
-	_game_mark_even.x = _background.x + 125;
-	_game_mark_even.y = _background.y  + 80;
+	_game_mark_even.x = background.x + 125;
+	_game_mark_even.y = background.y  + 80;
 	_game_mark_even.animationSpeed = spriteSpeed;
 	_game_mark_even.gotoAndStop(8);
 
@@ -698,8 +383,8 @@ function init() {
 
 
 	_game_btnSounds = new PIXI.AnimatedSprite(gameSheet['_game_btnSounds']);
-	_game_btnSounds.x = _background.x + 225;
-	_game_btnSounds.y = _background.y  + 243;
+	_game_btnSounds.x = background.x + 225;
+	_game_btnSounds.y = background.y  + 243;
 	_game_btnSounds.width = 30;
 	_game_btnSounds.height = 25;
 	_game_btnSounds.interactive = true;
@@ -717,8 +402,8 @@ function init() {
 	});
 
 	_game_btnMusic = new PIXI.AnimatedSprite(gameSheet['_game_btnSounds']);
-	_game_btnMusic.x = _background.x + 265;
-	_game_btnMusic.y = _background.y  + 240;
+	_game_btnMusic.x = background.x + 265;
+	_game_btnMusic.y = background.y  + 240;
 	_game_btnMusic.width = 30;
 	_game_btnMusic.height = 25;
 	_game_btnMusic.interactive = true;
@@ -756,8 +441,8 @@ function init() {
 
 
 	_ring_Left_sprite = new PIXI.AnimatedSprite(gameSheet['_ring_Left']);
-	_ring_Left_sprite.x = _background.x - 170;
-	_ring_Left_sprite.y = _background.y  - 215;
+	_ring_Left_sprite.x = background.x - 170;
+	_ring_Left_sprite.y = background.y  - 215;
 	_ring_Left_sprite.animationSpeed = spriteSpeed;
 	_ring_Left_sprite.gotoAndStop(0);
 	_ring_Left_sprite.loop = false;
@@ -777,8 +462,8 @@ function init() {
 
 
 	_ring_Right_sprite = new PIXI.AnimatedSprite(gameSheet['_ring_Right']);
-	_ring_Right_sprite.x = _background.x + 175;
-	_ring_Right_sprite.y = _background.y  - 214;
+	_ring_Right_sprite.x = background.x + 175;
+	_ring_Right_sprite.y = background.y  - 214;
 	_ring_Right_sprite.animationSpeed = spriteSpeed;
 	_ring_Right_sprite.gotoAndStop(0);
 	_ring_Right_sprite.loop = false;
@@ -795,8 +480,8 @@ function init() {
 	}	
 
 	_ready_character_sprite = new PIXI.AnimatedSprite(gameSheet['_ready_character']);
-	_ready_character_sprite.x = _background.x - 170;
-	_ready_character_sprite.y = _background.y - 130;
+	_ready_character_sprite.x = background.x - 170;
+	_ready_character_sprite.y = background.y - 130;
 	_ready_character_sprite.animationSpeed = spriteSpeed;
 	_ready_character_sprite.play();
 	_ready_character_sprite.alpha = 1;
@@ -812,8 +497,8 @@ function init() {
 	}	
 
 	_play_character_sprite = new PIXI.AnimatedSprite(gameSheet['_play_character']);
-	_play_character_sprite.x = _background.x - 150;
-	_play_character_sprite.y = _background.y - 80;
+	_play_character_sprite.x = background.x - 150;
+	_play_character_sprite.y = background.y - 80;
 	_play_character_sprite.animationSpeed = spriteSpeed;
 
 	_play_character_sprite.alpha = 0;
@@ -830,8 +515,8 @@ function init() {
 	}	
 
 	_game_signal_green_sprite = new PIXI.AnimatedSprite(gameSheet['_game_signal_green']);
-	_game_signal_green_sprite.x = _background.x - 150;
-	_game_signal_green_sprite.y = _background.y - 90;
+	_game_signal_green_sprite.x = background.x - 150;
+	_game_signal_green_sprite.y = background.y - 90;
 	_game_signal_green_sprite.animationSpeed = spriteSpeed;
 
 	_game_signal_green_sprite.alpha = 0;
@@ -848,8 +533,8 @@ function init() {
 	}	
 
 	_game_shoot_effect_sprite_left = new PIXI.AnimatedSprite(gameSheet['_game_shoot_effect']);
-	_game_shoot_effect_sprite_left.x = _background.x - 150;
-	_game_shoot_effect_sprite_left.y = _background.y - 90;
+	_game_shoot_effect_sprite_left.x = background.x - 150;
+	_game_shoot_effect_sprite_left.y = background.y - 90;
 	_game_shoot_effect_sprite_left.animationSpeed = spriteSpeed;
 
 	_game_shoot_effect_sprite_left.alpha = 0;
@@ -857,8 +542,8 @@ function init() {
 
 
 	_game_shoot_effect_sprite_right = new PIXI.AnimatedSprite(gameSheet['_game_shoot_effect']);
-	_game_shoot_effect_sprite_right.x = _background.x + 150;
-	_game_shoot_effect_sprite_right.y = _background.y - 90;
+	_game_shoot_effect_sprite_right.x = background.x + 150;
+	_game_shoot_effect_sprite_right.y = background.y - 90;
 	_game_shoot_effect_sprite_right.animationSpeed = spriteSpeed;
 	_game_shoot_effect_sprite_right.alpha = 0;
 
@@ -874,8 +559,8 @@ function init() {
 	}	
 
 	_game_signal_02_sprite = new PIXI.AnimatedSprite(gameSheet['_game_signal_02']);
-	_game_signal_02_sprite.x = _background.x - 150;
-	_game_signal_02_sprite.y = _background.y - 90;
+	_game_signal_02_sprite.x = background.x - 150;
+	_game_signal_02_sprite.y = background.y - 90;
 	_game_signal_02_sprite.animationSpeed = spriteSpeed;
 
 	_game_signal_02_sprite.alpha = 0;
@@ -892,16 +577,16 @@ function init() {
 
 
 	_game_signal_01_sprite_left = new PIXI.AnimatedSprite(gameSheet['_game_signal_01']);
-	_game_signal_01_sprite_left.x = _background.x - 150;
-	_game_signal_01_sprite_left.y = _background.y - 90;
+	_game_signal_01_sprite_left.x = background.x - 150;
+	_game_signal_01_sprite_left.y = background.y - 90;
 	_game_signal_01_sprite_left.animationSpeed = spriteSpeed;
 	_game_signal_01_sprite_left.alpha = 0;
 	_game_signal_01_sprite_left.play();
 
 
 	_game_signal_01_sprite_right = new PIXI.AnimatedSprite(gameSheet['_game_signal_01']);
-	_game_signal_01_sprite_right.x = _background.x + 60;
-	_game_signal_01_sprite_right.y = _background.y - 90;
+	_game_signal_01_sprite_right.x = background.x + 60;
+	_game_signal_01_sprite_right.y = background.y - 90;
 	_game_signal_01_sprite_right.animationSpeed = spriteSpeed;
 	_game_signal_01_sprite_right.alpha = 0;
 	_game_signal_01_sprite_right.play();
@@ -931,48 +616,48 @@ function init() {
 	app.ticker.add((delta) => {
 
 		// PLAY CHARACTER POSITION PER FRAME
-		_play_character_sprite.y = gamePivot.pivot_character[_play_character_sprite.currentFrame][1]['y'] +  (_background.y - 280);
-		_play_character_sprite.x = gamePivot.pivot_character[_play_character_sprite.currentFrame][1]['x']  +  (_background.x - 160);
+		_play_character_sprite.y = gamePivot.pivot_character[_play_character_sprite.currentFrame][1]['y'] +  (background.y - 280);
+		_play_character_sprite.x = gamePivot.pivot_character[_play_character_sprite.currentFrame][1]['x']  +  (background.x - 160);
 
 		// READY CHARACTER POSITION PER FRAME 
-		_ready_character_sprite.y = gamePivot.pivot_ready_character[_ready_character_sprite.currentFrame][1]['y'] +  (_background.y - 140);
-		_ready_character_sprite.x = gamePivot.pivot_ready_character[_ready_character_sprite.currentFrame][1]['x']  +  (_background.x - 185);
+		_ready_character_sprite.y = gamePivot.pivot_ready_character[_ready_character_sprite.currentFrame][1]['y'] +  (background.y - 140);
+		_ready_character_sprite.x = gamePivot.pivot_ready_character[_ready_character_sprite.currentFrame][1]['x']  +  (background.x - 185);
 
 		// READY CHARACTER POSITION PER FRAME 
-		_ring_Right_sprite.y = gamePivot.pivot_right_ring[_ring_Right_sprite.currentFrame][1]['y'] + (_background.y - 280);
-		_ring_Right_sprite.x = gamePivot.pivot_right_ring[_ring_Right_sprite.currentFrame][1]['x'] + (_background.x + 40);
+		_ring_Right_sprite.y = gamePivot.pivot_right_ring[_ring_Right_sprite.currentFrame][1]['y'] + (background.y - 280);
+		_ring_Right_sprite.x = gamePivot.pivot_right_ring[_ring_Right_sprite.currentFrame][1]['x'] + (background.x + 40);
 
 		// READY CHARACTER POSITION PER FRAME 
-		_ring_Left_sprite.y = gamePivot.pivot_left_ring[_ring_Left_sprite.currentFrame][1]['y'] + (_background.y - 280);
-		_ring_Left_sprite.x = gamePivot.pivot_left_ring[_ring_Left_sprite.currentFrame][1]['x'] + (_background.x - 305);
+		_ring_Left_sprite.y = gamePivot.pivot_left_ring[_ring_Left_sprite.currentFrame][1]['y'] + (background.y - 280);
+		_ring_Left_sprite.x = gamePivot.pivot_left_ring[_ring_Left_sprite.currentFrame][1]['x'] + (background.x - 305);
 
 
 		// READY Green Signal POSITION PER FRAME 
-		_game_signal_green_sprite.y = gamePivot.pivot_green_signal[_game_signal_green_sprite.currentFrame][1]['y'] + (_background.y - 142);
-		_game_signal_green_sprite.x = gamePivot.pivot_green_signal[_game_signal_green_sprite.currentFrame][1]['x'] + (_background.x - 182);
+		_game_signal_green_sprite.y = gamePivot.pivot_green_signal[_game_signal_green_sprite.currentFrame][1]['y'] + (background.y - 142);
+		_game_signal_green_sprite.x = gamePivot.pivot_green_signal[_game_signal_green_sprite.currentFrame][1]['x'] + (background.x - 182);
 
 
 		// READY Green Signal POSITION PER FRAME 
-		_game_shoot_effect_sprite_left.y = gamePivot.pivot_shoot_effect[_game_shoot_effect_sprite_left.currentFrame][1]['y'] + (_background.y - 285);
-		_game_shoot_effect_sprite_left.x = gamePivot.pivot_shoot_effect[_game_shoot_effect_sprite_left.currentFrame][1]['x'] + (_background.x - 285);
+		_game_shoot_effect_sprite_left.y = gamePivot.pivot_shoot_effect[_game_shoot_effect_sprite_left.currentFrame][1]['y'] + (background.y - 285);
+		_game_shoot_effect_sprite_left.x = gamePivot.pivot_shoot_effect[_game_shoot_effect_sprite_left.currentFrame][1]['x'] + (background.x - 285);
 
 		// READY Green Signal POSITION PER FRAME 1
-		_game_shoot_effect_sprite_right.y = gamePivot.pivot_shoot_effect[_game_shoot_effect_sprite_right.currentFrame][1]['y'] + (_background.y - 285);
-		_game_shoot_effect_sprite_right.x = gamePivot.pivot_shoot_effect[_game_shoot_effect_sprite_right.currentFrame][1]['x'] + (_background.x + 25);
+		_game_shoot_effect_sprite_right.y = gamePivot.pivot_shoot_effect[_game_shoot_effect_sprite_right.currentFrame][1]['y'] + (background.y - 285);
+		_game_shoot_effect_sprite_right.x = gamePivot.pivot_shoot_effect[_game_shoot_effect_sprite_right.currentFrame][1]['x'] + (background.x + 25);
 
 
 		// READY Green Signal POSITION PER FRAME 1
-		_game_signal_02_sprite.y = gamePivot.pivot_signal_02[_game_signal_02_sprite.currentFrame][1]['y'] + (_background.y - 250);
-		_game_signal_02_sprite.x = gamePivot.pivot_signal_02[_game_signal_02_sprite.currentFrame][1]['x'] + (_background.x - 135);
+		_game_signal_02_sprite.y = gamePivot.pivot_signal_02[_game_signal_02_sprite.currentFrame][1]['y'] + (background.y - 250);
+		_game_signal_02_sprite.x = gamePivot.pivot_signal_02[_game_signal_02_sprite.currentFrame][1]['x'] + (background.x - 135);
 
 		// READY Green Signal POSITION PER FRAME 1
-		_game_signal_01_sprite_right.y = gamePivot.pivot_signal_01[_game_signal_01_sprite_right.currentFrame][1]['y'] + (_background.y - 50);
-		_game_signal_01_sprite_right.x = (-gamePivot.pivot_signal_01[_game_signal_01_sprite_right.currentFrame][1]['x']) + (_background.x + 450);
+		_game_signal_01_sprite_right.y = gamePivot.pivot_signal_01[_game_signal_01_sprite_right.currentFrame][1]['y'] + (background.y - 50);
+		_game_signal_01_sprite_right.x = (-gamePivot.pivot_signal_01[_game_signal_01_sprite_right.currentFrame][1]['x']) + (background.x + 450);
 		_game_signal_01_sprite_right.scale.x = -1;
 
 		// READY Green Signal POSITION PER FRAME 1
-		_game_signal_01_sprite_left.y = gamePivot.pivot_signal_01[_game_signal_01_sprite_left.currentFrame][1]['y'] + (_background.y - 50);
-		_game_signal_01_sprite_left.x = gamePivot.pivot_signal_01[_game_signal_01_sprite_left.currentFrame][1]['x'] + (_background.x - 450);
+		_game_signal_01_sprite_left.y = gamePivot.pivot_signal_01[_game_signal_01_sprite_left.currentFrame][1]['y'] + (background.y - 50);
+		_game_signal_01_sprite_left.x = gamePivot.pivot_signal_01[_game_signal_01_sprite_left.currentFrame][1]['x'] + (background.x - 450);
 		// _game_signal_01_sprite_right.scale.x = -1;
 
 		// UPDATING TIME OF THE GAME
@@ -1701,6 +1386,7 @@ function init() {
 
 	document.addEventListener("visibilitychange", function() {
 	      if (!document.hidden) {
+	      	console.log('sdsd')
 	      	if (!animGameState) {
 
 		        fetch(apiRecord+'/api/get-result/limit/20').then((res)=>{
@@ -1733,39 +1419,3 @@ function init() {
 	
 
 }
-
-
-
-
-window.onresize = function() {
-	// resize()
-}
-
-// resize()
-
-
-function resize() {
-    // if (window.innerWidth / window.innerHeight >= ratio) {
-    //     var w = window.innerHeight * ratio;
-    //     var h = window.innerHeight;
-    // } else {
-    //     var w = window.innerWidth;
-    //     var h = window.innerWidth / ratio;
-    // }
-
-    //  // app.renderer.resize(screenW,screenH);
-
-    //  if (window.innerWidth < size[0]) {
-	   //  app.renderer.view.style.width = w + 'px';
-	   //  app.renderer.view.style.height = h + 'px';
-    //  }
-}
-
-
-
-
-}
-
-// xhttp.open('GET','http://127.0.0.1:8000/sayHello',true);
-// xhttp.send();
-
