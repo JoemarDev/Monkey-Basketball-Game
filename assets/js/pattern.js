@@ -56,7 +56,11 @@ let activeTable = 1;
 	let roundFetch = hour + min;
 
 
+<<<<<<< HEAD
 	fetch(apiRecord+'/api/basketball/get-result/limit/'+roundFetch).then((res)=>{
+=======
+	fetch(apiRecord+'/api/get-result/limit/'+roundFetch).then((res)=>{
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 		return res.json();
 	}).then((data) => {
 		todayData = data;
@@ -74,7 +78,11 @@ let activeTable = 1;
 		var sec = time.getSeconds();
 		if (sec == 6) {
 
+<<<<<<< HEAD
 			fetch(apiRecord+'/api/basketball/get-result/limit/1').then((res)=>{
+=======
+			fetch(apiRecord+'/api/get-result/limit/1').then((res)=>{
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 				return res.json();
 			}).then((data) => {
 				if (lastRound != data[0]['round']) {
@@ -241,6 +249,7 @@ let activeTable = 1;
 					if (compare1 == lastCompare1 && compare2 == lastCompare2) {
 
 						if (compare1 == 'right' && compare2 =='3Lines') {
+<<<<<<< HEAD
 							append_table_child(2,todayData[x]['round'],'홀3','홀3')
 							right3++;
 							left3Y++;
@@ -254,6 +263,21 @@ let activeTable = 1;
 							right3Y++;
 						} else if (compare1 == 'left' && compare2 =='4Lines') {
 							append_table_child(1,todayData[x]['round'],'짝4','짝4')
+=======
+							append_table_child(2,todayData[x]['round'],'좌3','좌3')
+							right3++;
+							left3Y++;
+						} else if (compare1 == 'right' && compare2 =='4Lines') {
+							append_table_child(2,todayData[x]['round'],'좌4','좌4')
+							right4++;
+							left4Y++;
+						} else if (compare1 == 'left' && compare2 =='3Lines') {
+							append_table_child(1,todayData[x]['round'],'우3','우3')
+							left3++;
+							right3Y++;
+						} else if (compare1 == 'left' && compare2 =='4Lines') {
+							append_table_child(1,todayData[x]['round'],'우4','우4')
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 							left4++;
 							right4Y++;
 						}
@@ -287,25 +311,41 @@ let activeTable = 1;
 						
 						if (compare1 == 'right' && compare2 =='3Lines') {
 
+<<<<<<< HEAD
 							append_table_parent(2,todayData[x]['round'],'홀3','홀3')
+=======
+							append_table_parent(2,todayData[x]['round'],'좌3','좌3')
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 							lastCompare1 = 'right';
 							lastCompare2 = '3Lines';
 							right3++;
 						} else if (compare1 == 'right' && compare2 =='4Lines') {
 
+<<<<<<< HEAD
 							append_table_parent(2,todayData[x]['round'],'홀4','홀4')
+=======
+							append_table_parent(2,todayData[x]['round'],'좌4','좌4')
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 							lastCompare1 = 'right';
 							lastCompare2 = '4Lines';
 							right4++;
 						} else if (compare1 == 'left' && compare2 =='3Lines') {
 
+<<<<<<< HEAD
 							append_table_parent(1,todayData[x]['round'],'짝3','짝3')
+=======
+							append_table_parent(1,todayData[x]['round'],'우3','우3')
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 							lastCompare1 = 'left';
 							lastCompare2 = '3Lines';
 							left3++;
 						} else if (compare1 == 'left' && compare2 =='4Lines') {
 
+<<<<<<< HEAD
 							append_table_parent(1,todayData[x]['round'],'짝4','짝4')
+=======
+							append_table_parent(1,todayData[x]['round'],'우4','우4')
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 							lastCompare1 = 'left';
 							lastCompare2 = '3Lines';
 							left4++;
@@ -370,7 +410,11 @@ let activeTable = 1;
 	      	var sec = time.getSeconds();
 	      	let missedRound = ((time.getHours() * 60) + time.getMinutes()) - todayData.length;
 	      	if (missedRound > 0) {
+<<<<<<< HEAD
 	      		fetch(apiRecord+'/api/basketball/get-result/limit/'+missedRound).then((res)=>{
+=======
+	      		fetch(apiRecord+'/api/get-result/limit/'+missedRound).then((res)=>{
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 	      			return res.json();
 	      		}).then((data) => {
 	      			for(let x = data.length - 1; x <= 0; x--) {

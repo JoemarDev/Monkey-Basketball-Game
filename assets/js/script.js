@@ -255,6 +255,15 @@ if (document.getElementById('game_holder')) {
 
 document.getElementById('game_holder').appendChild(app.view);
 
+<<<<<<< HEAD
+=======
+
+app.renderer.resize(size[0],size[1]);
+
+
+
+
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 
 app.renderer.resize(size[0],size[1]);
 
@@ -292,6 +301,10 @@ loader.add("_background" , "assets/images/basketball/images/background.png")
 
 loader.onProgress.add((e) => {
 	if (loadedText) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 		loadedText.text = Math.ceil(e.progress) + '%';
 	}
 })
@@ -329,9 +342,15 @@ function init() {
 	let _game_result_icon = new PIXI.BaseTexture.from(loader.resources['_game_result_icon'].url);
 	let _game_btnSounds = new PIXI.BaseTexture.from(loader.resources['_game_btnSounds'].url);
 
+<<<<<<< HEAD
 
 	// MUSIC
 
+=======
+
+	// MUSIC
+
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 	let backgroundMusic,b5seconds,basketDribble,commonLadder,commonResult;
 
 	PIXI.Loader.shared.load(function(loader, resources) {
@@ -342,8 +361,11 @@ function init() {
 	   basketDribble = resources.basketDribble.sound;
 	   commonLadder = resources.commonLadder.sound;
 	   commonResult = resources.commonResult.sound;
+<<<<<<< HEAD
 	   basketStartend = resources.basketStartend.sound;
 
+=======
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 
 	});
 
@@ -729,14 +751,20 @@ function init() {
 			basketDribble.volume = 0;
 			commonLadder.volume = 0;
 			commonResult.volume = 0;
+<<<<<<< HEAD
 			basketStartend.volume = 0;
+=======
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 		} else {
 			_game_btnMusic.gotoAndStop(3);
 			b5seconds.volume = 1;
 			basketDribble.volume = 1;
 			commonLadder.volume = 1;
 			commonResult.volume = 1;
+<<<<<<< HEAD
 			basketStartend.volume = 1;
+=======
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 		
 		}
 	});
@@ -1541,7 +1569,10 @@ function init() {
         	basketDribbleInstance.on('end' ,function() {
         		 musicL.load(function(Loader, resources){
         		 	resources.basketStartend.sound.play();
+<<<<<<< HEAD
         		 	basketStartend.play();
+=======
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
         		 	setTimeout(function(){
         		 		const commonLadderInstance = resources.commonLadder.sound.play();
         		 		setTimeout(function(){
@@ -1700,7 +1731,12 @@ function init() {
 	document.addEventListener("visibilitychange", function() {
 	      if (!document.hidden) {
 	      	if (!animGameState) {
+<<<<<<< HEAD
 		        fetch(apiRecord+'/api/basketball/get-result/limit/20').then((res)=>{
+=======
+
+		        fetch(apiRecord+'/api/get-result/limit/20').then((res)=>{
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 		        	return res.json();
 		        }).then((data) => {
 		        	let nextRound = parseInt(data[0]['round']) + 1;
@@ -1719,14 +1755,21 @@ function init() {
 		      	basketDribble.volume = 1;
 		      	commonLadder.volume = 1;
 		      	commonResult .volume = 1;
+<<<<<<< HEAD
 		      	basketStartend = 1;
+=======
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 	      } else {
 	      	backgroundMusic.volume = 0; 
 	      	b5seconds.volume = 0; 
 	      	basketDribble.volume = 0;
 	      	commonLadder.volume = 0;
+<<<<<<< HEAD
 	      	commonResult.volume = 0;
 	      	basketStartend.volume = 0;
+=======
+	      	commonResult .volume = 0;
+>>>>>>> 20a43963b7a2b8c35a01b0dc481d29024c41e905
 	      }
 	});
 	
